@@ -54,9 +54,11 @@ def _natural(text: str, *, original: str | None = None, parser="eliza-rules-v1",
     if len(matches) != 1:
         return ParsedInput("UNRESOLVED", None, source, source, parser, False, shadow)
     # Quoted instructions and explicit negations must not be silently executed.
-    if re.search(r'\\b(?:não|nao|nunca|jamais)\\s+(?:quero\\s+que\\s+)?(?:guardes?|arquives?|corrijas?|calcules?|pesquises?|procures?|reescrevas?)\\b', normal):
+    if re.search(r'\b(?:não|nao|nunca|jamais)\s+(?:quero\s+que\s+)?(?:guardes?|arquives?|corrijas?|calcules?|pesquises?|procures?|reescrevas?)\b', normal):
         return ParsedInput("UNRESOLVED", None, source, source, parser, False, shadow)
     if re.search(r'[«“"][^»”"]*(?:guarda|corrige|calcula|pesquisa|arquiva)[^»”"]*[»”"]', text, re.IGNORECASE):
+        return ParsedInput("UNRESOLVED", None, source, source, parser, False, shadow)
+    if re.search(r"\b(?:a palavra|a frase|o termo)\s+(?:guarda|corrige|calcula|pesquisa|arquiva)\b", normal):
         return ParsedInput("UNRESOLVED", None, source, source, parser, False, shadow)
     return ParsedInput("RESOLVED", matches[0], source, source, parser, False, shadow)
 
