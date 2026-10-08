@@ -73,3 +73,19 @@ def test_original_bytes_semantics_and_prefix_stability(i):
     text=f"  @@ nota {i} — ação \u2603"
     x=parse(text)
     assert x.status=="RESOLVED" and x.intent=="arquivo" and x.original==text
+
+@pytest.mark.parametrize("text",[
+    "Não quero que guardes isto.",
+    "Nunca calcules esta conta.",
+    "O autor disse «guarda isto» no romance.",
+    'A frase "corrige isto" está no livro.',
+])
+def test_quoted_or_negated_commands_require_clarification(text):
+    result=parse(text)
+    assert result.status=="UNRESOLVED" and result.intent is None
+
+def test_intent_is_not_permission():
+    result=parse("Corrige este texto.")
+    assert result.status=="RESOLVED"
+    assert "approved" not in result.as_dict()
+    assert "execute" not in result.as_dict()
