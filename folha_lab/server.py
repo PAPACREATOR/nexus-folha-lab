@@ -4,6 +4,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 import json
 from nexus.frontdoor import parse, parse_with_languagetool
+from folha_lab.local_ai import suggest_question
 import hashlib
 
 PAGE = (Path(__file__).parent / "index.html").read_bytes()
@@ -27,7 +28,14 @@ class Handler(BaseHTTPRequestHandler):
                 result["question"]="Interpretaste corretamente o pedido? Confirmas esta proposta? (Nenhuma ação será executada neste laboratório.)"
             else:
                 result["confirmation_required"]=False
-            if result["status"]=="UNRESOLVED": result["question"]="Podes explicar com outras palavras o que pretendes fazer?"
+            if result["status"]=="UNRESOLVED":
+                fallback = "Podes explicar com outras palavras o que pretendes fazer?"
+                # Only unresolved natural language may consult the optional local model.
+                ai_question = None if result["explicit"] else suggest_question(result["original"])
+                result["question"] = ai_question or fallback
+                result["question_source"] = "local_model" if ai_question else "deterministic"
+            if result["status"]=="BLOCKED":
+                result["question"] = "O pedido contém dados inválidos ou ultrapassa o limite permitido."
             body=json.dumps(result,ensure_ascii=False).encode("utf-8")
         except (ValueError,TypeError,UnicodeError,KeyError): return self.send_error(400)
         self.send_response(200); self.send_header("Content-Type","application/json; charset=utf-8"); self.send_header("Cache-Control","no-store"); self.send_header("Content-Length",str(len(body))); self.end_headers(); self.wfile.write(body)
