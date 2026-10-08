@@ -14,6 +14,9 @@ def test_http_bidirectional_proposal_and_ambiguity():
         with urlopen(base + "/", timeout=5) as response:
             page = response.read().decode("utf-8")
             assert "<textarea" in page and "Interpretar" in page
+            assert 'id="confirm"' in page and 'id="reject"' in page
+            assert 'field.addEventListener("input"' in page
+            assert "Nenhuma ação foi executada." in page
         for phrase, expected in [
             ("Guarda esta nota", "RESOLVED"),
             ("Corrige o texto", "RESOLVED"),

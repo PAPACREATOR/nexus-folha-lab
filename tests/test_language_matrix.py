@@ -89,3 +89,25 @@ def test_intent_is_not_permission():
     assert result.status=="RESOLVED"
     assert "approved" not in result.as_dict()
     assert "execute" not in result.as_dict()
+
+@pytest.mark.parametrize("phrase", [
+    "Não quero guardar esta nota.",
+    "Nao quero guardar esta nota.",
+    "Nunca guardar isto.",
+    "Não guarda este texto.",
+    "Não quero que guardes isto.",
+    "Não arquiva o relatório.",
+    "Não quero corrigir isto.",
+    "Não corrige a frase.",
+    "Não quero calcular a conta.",
+    "Não calcula os valores.",
+    "Não quero pesquisar na web.",
+    "Não pesquisa na internet.",
+    "Não quero explicar o assunto.",
+    "Isto é uma nota sobre a palavra corrige.",
+    "O título contém a frase «guarda isto».",
+])
+def test_negation_and_mentions_are_not_commands(phrase):
+    result = parse(phrase)
+    assert result.status == "UNRESOLVED", (phrase, result.as_dict())
+    assert result.intent is None
