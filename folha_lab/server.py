@@ -3,7 +3,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
 import json
-from nexus.frontdoor import parse, parse_with_languagetool
+from nexus.frontdoor import parse, parse_with_languagetool\nimport hashlib
 
 PAGE = (Path(__file__).parent / "index.html").read_bytes()
 class Handler(BaseHTTPRequestHandler):
@@ -19,7 +19,7 @@ class Handler(BaseHTTPRequestHandler):
             data=json.loads(self.rfile.read(n))
             if not isinstance(data,dict) or set(data)-{"text","languagetool"} or not isinstance(data.get("text"),str): return self.send_error(400)
             result=(parse_with_languagetool(data["text"],data["languagetool"]) if "languagetool" in data else parse(data["text"])).as_dict()
-            result["execution"]="SIMULATED_ONLY"
+            result["execution"]="SIMULATED_ONLY"\n            if result["status"]=="RESOLVED":\n                result["confirmation_required"]=True\n                result["proposal_id"]=hashlib.sha256((result["original"]+"\\0"+result["intent"]).encode("utf-8")).hexdigest()\n                result["question"]="Interpretaste corretamente o pedido? Confirmas esta proposta? (Nenhuma ação será executada neste laboratório.)"\n            else:\n                result["confirmation_required"]=False
             if result["status"]=="UNRESOLVED": result["question"]="Podes explicar com outras palavras o que pretendes fazer?"
             body=json.dumps(result,ensure_ascii=False).encode("utf-8")
         except (ValueError,TypeError,UnicodeError,KeyError): return self.send_error(400)
