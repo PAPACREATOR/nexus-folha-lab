@@ -5,6 +5,7 @@ from urllib.parse import urlsplit
 import json
 from nexus.frontdoor import parse, parse_with_languagetool
 from folha_lab.local_ai import suggest_question
+from folha_lab.local_language import local_diagnostic
 import hashlib
 
 PAGE = (Path(__file__).parent / "index.html").read_bytes()
@@ -20,7 +21,17 @@ class Handler(BaseHTTPRequestHandler):
             if n < 1 or n > 250000: return self.send_error(413)
             data=json.loads(self.rfile.read(n))
             if not isinstance(data,dict) or set(data)-{"text","languagetool"} or not isinstance(data.get("text"),str): return self.send_error(400)
-            result=(parse_with_languagetool(data["text"],data["languagetool"]) if "languagetool" in data else parse(data["text"])).as_dict()
+            text = data["text"]
+            if "languagetool" in data:
+                parsed = parse_with_languagetool(text, data["languagetool"])
+            else:
+                parsed = parse(text)
+                if parsed.status == "UNRESOLVED" and not parsed.explicit:
+                    # Optional local-only LanguageTool before optional local AI.
+                    diagnostic = local_diagnostic(text)
+                    if diagnostic is not None:
+                        parsed = parse_with_languagetool(text, diagnostic)
+            result = parsed.as_dict()
             result["execution"]="SIMULATED_ONLY"
             if result["status"]=="RESOLVED":
                 result["confirmation_required"]=True
