@@ -46,7 +46,8 @@
     "fontes": [
       "\\b(?:encontra|procura|pesquisa|pesquiza)\\b.*\\bfontes?\\b",
       "\\bquais\\b.*\\bfontes?\\b",
-      "\\bda(?:-me)?\\b.*\\bfontes?\\b"
+      "\\bda(?:-me)?\\b.*\\bfontes?\\b",
+      "\\bdá(?:-me)?\\b.*\\bfontes?\\b"
     ],
     "trabalhar": [
       "\\btrabalha(?:r)?\\b",
