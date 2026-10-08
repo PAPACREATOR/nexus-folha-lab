@@ -46,3 +46,11 @@ A presença de `RESOLVED` **não autoriza** uma ação. O campo `execution` é e
 Fonte: `PAPACREATOR/cerebro-parvo-`, branch `lab-e2e-frontdoor-20261004`, especialmente `nexus/frontdoor.py`, `nexus/frontdoor_rules.json`, `nexus/schemas/frontdoor_rules.json` e `nexus/adapters/languagetool.py`.
 
 O repositório principal mantém-se intocado. A integração futura deve ser proposta, revista e testada no repositório principal, não copiada automaticamente.
+
+## Regra absoluta — confirmação antes de executar (2026-10-08)
+
+**Perguntar sempre ao humano antes de executar qualquer ação, mesmo que a intenção seja inequívoca.** A Folha e a IA apenas interpretam, propõem e esclarecem; `RESOLVED` nunca equivale a autorização. O laboratório é exclusivamente simulado.
+
+Fluxo obrigatório: pedido → interpretação → esclarecimento se necessário → apresentação da operação concreta e consequências → **confirmação humana explícita** → validação independente do Host → execução. Uma confirmação só vale para a operação e os parâmetros apresentados, nunca para outras ações, e não pode ser inferida de texto livre, silêncio ou confirmações antigas. Qualquer alteração dos parâmetros exige nova confirmação. Rejeição, expiração ou ambiguidade impedem a execução.
+
+Na futura integração, preservar o Human Gate já existente e adicionar a confirmação **pré-execução** na fronteira da Folha/Host, sem confundir esta com a aprovação posterior de promoção Creative→Canonical. Não alterar o Kernel sem evidência e autorização.
