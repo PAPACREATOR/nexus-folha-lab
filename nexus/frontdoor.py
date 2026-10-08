@@ -53,7 +53,7 @@ def _natural(text: str, *, original: str | None = None, parser="eliza-rules-v1",
     source = text if original is None else original
     if len(matches) != 1:
         return ParsedInput("UNRESOLVED", None, source, source, parser, False, shadow)
-    return ParsedInput("RESOLVED", matches[0], source, source, parser, False, shadow)
+    # Quoted commands and negated instructions are not execution requests.\n    if re.search(r"\\b(?:n[aã]o|nunca|jamais)\\s+(?:quero\\s+que\\s+)?(?:guardes?|arquives?|corrijas?|calcules?|pesquises?|procures?|reescrevas?|explique?s?)\\b", normal):\n        return ParsedInput("UNRESOLVED", None, source, source, parser, False, shadow)\n    if re.search(r"[«“\\\"][^»”\\\"]*(?:guarda|corrige|calcula|pesquisa|arquiva)[^»”\\\"]*[»”\\\"]", text, re.IGNORECASE):\n        return ParsedInput("UNRESOLVED", None, source, source, parser, False, shadow)\n    return ParsedInput("RESOLVED", matches[0], source, source, parser, False, shadow)
 
 
 def parse_explicit(text: str) -> ParsedInput:
