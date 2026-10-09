@@ -63,8 +63,8 @@ def _natural(text: str, *, original: str | None = None, parser="eliza-rules-v1",
     # A reference to archiving under a negative instruction is not consent.
     # The natural-language parser must prefer clarification to a positive action.
     if re.search(
-        r"\\b(?:evita(?:r)?|pro[ií]bo|sem|deixa(?:r)?\\s+de)\\s+"
-        r"(?:\\w+\\s+){0,2}(?:guarda(?:r)?|arquiva(?:r)?|salva(?:r)?)\\b",
+        r"\b(?:evita(?:r)?|pro[ií]bo|sem|deixa(?:r)?\s+de)\s+"
+        r"(?:\w+\s+){0,2}(?:guarda(?:r)?|arquiva(?:r)?|salva(?:r)?)\b",
         normal,
     ):
         return ParsedInput("UNRESOLVED", None, source, source, parser, False, shadow)
