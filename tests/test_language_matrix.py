@@ -138,3 +138,14 @@ def test_ascii_delete_character_never_forms_a_valid_proposal(phrase):
     assert result.status == "BLOCKED", (phrase, result.as_dict())
     assert result.intent is None
     assert result.original == phrase
+
+
+@pytest.mark.parametrize("codepoint", range(0x7F, 0xA0))
+@pytest.mark.parametrize("template", ("@@ texto {control} nota", "Guarda {control} esta nota."))
+def test_nonprintable_c1_controls_never_produce_an_intent(codepoint, template):
+    """DEL and Unicode C1 controls are non-printable at the same input boundary."""
+    text = template.format(control=chr(codepoint))
+    result = parse(text)
+    assert result.status == "BLOCKED", (hex(codepoint), result.as_dict())
+    assert result.intent is None
+    assert result.original == text
