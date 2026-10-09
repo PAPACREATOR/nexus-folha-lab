@@ -110,3 +110,34 @@ def test_untrusted_html_remains_text_not_markup(page):
     assert page.locator("img").count() == 0
     page.locator("#confirm").click()
     assert page.locator("img").count() == 0
+
+
+def test_inflight_response_cannot_restore_confirmation_after_edit_and_undo(page):
+    """Changing and restoring identical bytes invalidates an in-flight proposal."""
+    page.evaluate("""() => {
+        const originalFetch = window.fetch;
+        window.fetch = (url, options) => {
+            if (url !== "/interpret") return originalFetch(url, options);
+            return new Promise(resolve => {
+                window.__finishInterpret = () => resolve(new Response(JSON.stringify({
+                    status: "RESOLVED",
+                    original: "Guarda isto.",
+                    confirmation_required: true,
+                    proposal_id: "stale-proposal",
+                    intent: "arquivo"
+                }), {status: 200, headers: {"Content-Type": "application/json"}}));
+            });
+        };
+    }""")
+    page.locator("#text").fill("Guarda isto.")
+    page.locator("#send").click()
+    assert page.evaluate("typeof window.__finishInterpret") == "function"
+
+    # Restore exact same text while the old HTTP response is still in flight.
+    page.locator("#text").fill("Corrige isto.")
+    page.locator("#text").fill("Guarda isto.")
+    page.evaluate("window.__finishInterpret()")
+    page.wait_for_function("() => !document.getElementById('send').disabled")
+
+    assert page.locator("#decision").is_hidden()
+    assert "mudou" in page.locator("#result").inner_text().lower()
