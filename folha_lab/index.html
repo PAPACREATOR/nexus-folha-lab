@@ -41,12 +41,14 @@ const panel = document.getElementById("decision");
 const proposal = document.getElementById("proposal");
 const send = document.getElementById("send");
 let pending = null;
+let editRevision = 0;
 function clearProposal() {
   pending = null;
   panel.hidden = true;
   proposal.textContent = "";
 }
 field.addEventListener("input", () => {
+  editRevision += 1;
   if (pending) {
     clearProposal();
     out.textContent = "O texto mudou. Interpreta novamente antes de confirmar.";
@@ -56,6 +58,7 @@ send.addEventListener("click", async () => {
   clearProposal();
   send.disabled = true;
   const requested = field.value;
+  const requestedRevision = editRevision;
   out.textContent = "A interpretar…";
   try {
     const response = await fetch("/interpret", {
@@ -65,7 +68,7 @@ send.addEventListener("click", async () => {
     });
     if (!response.ok) throw new Error("Pedido não aceite.");
     const result = await response.json();
-    if (field.value !== requested) {
+    if (field.value !== requested || editRevision !== requestedRevision) {
       out.textContent = "O texto mudou durante a análise. Interpreta novamente.";
       return;
     }

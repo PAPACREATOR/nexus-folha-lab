@@ -111,3 +111,41 @@ def test_negation_and_mentions_are_not_commands(phrase):
     result = parse(phrase)
     assert result.status == "UNRESOLVED", (phrase, result.as_dict())
     assert result.intent is None
+
+
+@pytest.mark.parametrize("phrase", [
+    "Evita guardar esta nota.",
+    "Quero evitar guardar este ficheiro.",
+    "Sem guardar o documento, continua.",
+    "Proíbo guardar o meu texto.",
+    "Deixa de guardar as minhas notas.",
+])
+def test_negative_archive_phrases_never_become_positive_proposals(phrase):
+    """A negated archival reference is not an archive request."""
+    result = parse(phrase)
+    assert result.status == "UNRESOLVED", (phrase, result.as_dict())
+    assert result.intent is None
+
+
+@pytest.mark.parametrize("phrase", [
+    "@@\x7f",
+    "Guarda\x7f isto.",
+    "&\x7f executar",
+])
+def test_ascii_delete_character_never_forms_a_valid_proposal(phrase):
+    """DEL is a non-printable ASCII control, including in explicit requests."""
+    result = parse(phrase)
+    assert result.status == "BLOCKED", (phrase, result.as_dict())
+    assert result.intent is None
+    assert result.original == phrase
+
+
+@pytest.mark.parametrize("codepoint", range(0x7F, 0xA0))
+@pytest.mark.parametrize("template", ("@@ texto {control} nota", "Guarda {control} esta nota."))
+def test_nonprintable_c1_controls_never_produce_an_intent(codepoint, template):
+    """DEL and Unicode C1 controls are non-printable at the same input boundary."""
+    text = template.format(control=chr(codepoint))
+    result = parse(text)
+    assert result.status == "BLOCKED", (hex(codepoint), result.as_dict())
+    assert result.intent is None
+    assert result.original == text

@@ -23,6 +23,16 @@ def test_http_bidirectional_proposal_and_ambiguity():
             ("Olá", "UNRESOLVED"),
             ("Guarda e calcula", "UNRESOLVED"),
             ("Não quero que guardes isto", "UNRESOLVED"),
+            ("Evita guardar esta nota.", "UNRESOLVED"),
+            ("Quero evitar guardar este ficheiro.", "UNRESOLVED"),
+            ("Sem guardar o documento, continua.", "UNRESOLVED"),
+            ("Proíbo guardar o meu texto.", "UNRESOLVED"),
+            ("Deixa de guardar as minhas notas.", "UNRESOLVED"),
+            ("@@\x7f", "BLOCKED"),
+            ("Guarda\x7f isto.", "BLOCKED"),
+            ("@@\u0085", "BLOCKED"),
+            ("Guarda\u009f isto.", "BLOCKED"),
+            ("&\x7f executar", "BLOCKED"),
         ]:
             req = Request(base + "/interpret", data=json.dumps({"text": phrase}).encode("utf-8"),
                           headers={"Content-Type": "application/json"}, method="POST")
