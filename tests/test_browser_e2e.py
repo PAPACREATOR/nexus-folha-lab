@@ -91,6 +91,9 @@ def test_change_of_text_revokes_stale_proposal(page):
     "Olá.",
     "Guarda e corrige isto.",
     "Não quero guardar a nota.",
+    "Evita guardar esta nota.",
+    "Sem guardar o documento, continua.",
+    "Proíbo guardar o meu texto.",
     'O autor escreveu «guarda isto» no romance.',
 ])
 def test_ambiguous_text_never_shows_confirmation(page, phrase):
