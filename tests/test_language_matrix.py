@@ -125,3 +125,16 @@ def test_negative_archive_phrases_never_become_positive_proposals(phrase):
     result = parse(phrase)
     assert result.status == "UNRESOLVED", (phrase, result.as_dict())
     assert result.intent is None
+
+
+@pytest.mark.parametrize("phrase", [
+    "@@\x7f",
+    "Guarda\x7f isto.",
+    "&\x7f executar",
+])
+def test_ascii_delete_character_never_forms_a_valid_proposal(phrase):
+    """DEL is a non-printable ASCII control, including in explicit requests."""
+    result = parse(phrase)
+    assert result.status == "BLOCKED", (phrase, result.as_dict())
+    assert result.intent is None
+    assert result.original == phrase
