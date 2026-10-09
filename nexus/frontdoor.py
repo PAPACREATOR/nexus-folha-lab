@@ -74,7 +74,7 @@ def _natural(text: str, *, original: str | None = None, parser="eliza-rules-v1",
 def parse_explicit(text: str) -> ParsedInput:
     if not isinstance(text, str):
         raise TypeError("text must be str")
-    if len(text) > MAX_TEXT_CHARS or any(ord(c) < 32 and c not in "\t\n\r" for c in text):
+    if len(text) > MAX_TEXT_CHARS or any((ord(c) < 32 and c not in "\t\n\r") or ord(c) == 127 for c in text):
         return ParsedInput("BLOCKED", None, text, "", "prefix-v1", False)
     if not text.strip():
         return ParsedInput("UNRESOLVED", None, text, "", "prefix-v1", False)
