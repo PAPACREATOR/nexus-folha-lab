@@ -10,10 +10,24 @@ import hashlib
 
 PAGE = (Path(__file__).parent / "index.html").read_bytes()
 class Handler(BaseHTTPRequestHandler):
+    def _trusted_browser(self):
+        """Refuse foreign Host/Origin before invoking language or local services."""
+        address = "127.0.0.1:" + str(self.server.server_port)
+        if self.headers.get("Host") != address:
+            self.send_error(403, "Unexpected local host")
+            return False
+        origin = self.headers.get("Origin")
+        if origin is not None and origin != "http://" + address:
+            self.send_error(403, "Unexpected browser origin")
+            return False
+        return True
+
     def do_GET(self):
+        if not self._trusted_browser(): return
         if urlsplit(self.path).path != "/": return self.send_error(404)
         self.send_response(200); self.send_header("Content-Type","text/html; charset=utf-8"); self.send_header("Cache-Control","no-store"); self.end_headers(); self.wfile.write(PAGE)
     def do_POST(self):
+        if not self._trusted_browser(): return
         if self.path != "/interpret": return self.send_error(404)
         if self.headers.get("Content-Type","").split(";")[0].strip() != "application/json": return self.send_error(415)
         try:
